@@ -39,16 +39,16 @@
 #
 #	AltExpBoost.LevelLimit.MinInfluencingCharLevel
 #		Any character will need to be this level or higher in order for other characters to
-#		consider them when calculating bonus experience.  Set to 0 or leave blank for no minimum
-#       limit.  For example, having this set to 10 with 3 characters with levels 8, 12, and 14
+#		consider them when calculating bonus experience.  Set to 0 no minimum limit.  
+#       For example, having this set to 10 with 3 characters with levels 8, 12, and 14
 #       will only count 2 characters (12 and 14) when calculating bonus experience
 #	Default 10 (characters used in bonus calculation must be 10 levels or higher)
 #
 #	AltExpBoost.LevelLimit.MaxAppliedCharLevel
-#		Only characters at or under this level can receive any bonus experience. Set to blank
-#       or 0 for no maximum
+#		Only characters at or under this level can receive any bonus experience. Set to 0 for 
+#       no maximum
 #		For example, setting this to 49 will me any character 1-49 will get bonus experience
-#	Default blank (no limit)
+#	Default 0 (no limit)
 #
 #	AltExpBoost.ExtraExpPercentPerChar.Kill
 #		For each character a player account has that is above the level of their currently logged on
@@ -66,5 +66,5 @@ AltExpBoost.DisplayMessage.AboveMaxAppliedCharLevel = 1
 AltExpBoost.DisabledInfluencingClassIDs = 6
 AltExpBoost.DisabledAppliedClassIDs = 
 AltExpBoost.LevelLimit.MinInfluencingCharLevel = 10
-AltExpBoost.LevelLimit.MaxAppliedCharLevel = 
+AltExpBoost.LevelLimit.MaxAppliedCharLevel = 0
 AltExpBoost.ExtraExpPercentPerChar.Kill = 50

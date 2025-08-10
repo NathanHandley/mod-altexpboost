@@ -46,7 +46,6 @@ public:
     {
         if (AltExpBoost->IsEnabled == false)
             return;
-        int numOfAffectingChar = AltExpBoost->GetNumOfInfluencingCharHigherThanLoggedInChar(player);
         AltExpBoost->AnnounceCurrentBonus(player);
     }
 
