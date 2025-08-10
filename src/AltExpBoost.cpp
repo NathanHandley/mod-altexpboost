@@ -131,7 +131,10 @@ void AltExpBoostMod::AnnounceCurrentBonus(Player* player)
     if (MinInfluencingCharLevel > 0)
         minLevelFragment = fmt::format(" (and > level {})", MinInfluencingCharLevel); 
     uint32 extraEXPKillBonus = (uint32)(AltExpBoost->GetExtraEXPOnKillBonus(player) * 100);
-    string text = fmt::format("You have |cff4CFF00{}|r characters higher than your current level{}, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, minLevelFragment, extraEXPKillBonus);
+    string charactersStringPluralS = "";
+    if (numOfAffectingChar != 1)
+        charactersStringPluralS = "s";
+    string text = fmt::format("You have |cff4CFF00{}|r character{} higher than your current level{}, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, charactersStringPluralS, minLevelFragment, extraEXPKillBonus);
     ChatHandler(player->GetSession()).SendSysMessage(text);
 }
 
