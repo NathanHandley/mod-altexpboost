@@ -1,0 +1,54 @@
+[worldserver]
+
+###################################################################################################
+# ALT EXP BOOST SETTINGS
+#
+# 	AltExpBoost.Enable
+#		Enable/Disable this whole module
+#	Default 1 (enabled)
+#
+# 	AltExpBoost.AnnourceOnLogin
+#		If true, will write a message on login that the module is active.
+#	Default 1 (enabled)
+#
+# 	AltExpBoost.ShowCurBonusOnLoginAndLevel
+#		If true, will output to the console the current active bonus on login and whenever the
+#       player levels up
+#	Default 1 (enabled)
+#      
+#   AltExpBoost.DisabledConsideredClassIDs
+#       These are class IDs that will not be included in calculating exp for the currently played
+#       class, used for ignoring heroic (DK) or custom classes which start above level 1.  Value 
+#       comes from ChrClasses.dbc. Use a comma (no spaces) to have multiple classes.
+#       For example, a value of "1,6" would disable considering Warrior (1) and Death Knight (6)
+#       when calculating the currently played character
+#   Default 6 (disables Death Knight, since they typically start at 55)
+#
+#   AltExpBoost.DisabledAppliedClassIDs
+#       These are class IDs that will not gain any experience boost even if other characters on the
+#       account are a higher level.  Use a comma (no spaces) to have multiple classes. Value 
+#       comes from ChrClasses.dbc.
+#       For example, setting this to "3" would mean that hunters would not gain any extra exp even
+#       if another class on that account was higher than the hunter's level
+#   Default blank (no classes)
+#
+#	AltExpBoost.ExtraExpPercentPerChar.Kill
+#	AltExpBoost.ExtraExpPercentPerChar.Quest
+#	AltExpBoost.ExtraExpPercentPerChar.Discover
+#		For each character a player account has that is above the level of their currently logged on
+#       character, this exp multiplier mod will be added.  For example, if this value is 50 and the 
+#       player has 3 other characters above the current character's level, then 150% (50% x 3) bonus 
+#       experience will be rewarded.  Whole values only.  Negative will be treated as 0
+#   Default 100 (adds an additional 100% experience, effectively doubling experience)
+#
+###################################################################################################
+
+AltExpBoost.Enable = 1
+AltExpBoost.AnnourceOnLogin = 1
+AltExpBoost.ShowCurBonusOnLoginAndLevel = 1
+AltExpBoost.DisabledConsideredClassIDs = 6
+AltExpBoost.DisabledAppliedClassIDs = 
+
+AltExpBoost.ExtraExpPercentPerChar.Kill = 100
+AltExpBoost.ExtraExpPercentPerChar.Quest = 100
+AltExpBoost.ExtraExpPercentPerChar.Discover = 100
