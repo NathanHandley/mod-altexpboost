@@ -25,11 +25,14 @@ using namespace std;
 
 AltExpBoostMod::AltExpBoostMod() :
     IsEnabled(true),
-    AnnourceOnLogin(false),
-    ShowCurBonusOnLoginAndLevel(true),
-    ExtraEXPPercentKill(0.5)
+    DisplayMessageAnnounceAddonInUseOnLogin(false),
+    DisplayMessageBonusOnLoginAndLevelChange(true),
+    DisplayMessageIfAboveMaxAppliedCharLevel(true),
+    ExtraEXPPercentKill(0.5),
     //ExtraEXPPercentQuest(0.5), NYI
     //ExtraEXPPercentDiscover(0.5) NYI
+    MinInfluencingCharLevel(10),
+    MaxAppliedCharLevel(0)
 {
 }
 
@@ -38,16 +41,19 @@ AltExpBoostMod::~AltExpBoostMod()
 
 }
 
-int AltExpBoostMod::GetNumOfCharHigherThanLoggedInChar(Player* player)
+int AltExpBoostMod::GetNumOfInfluencingCharHigherThanLoggedInChar(Player* player)
 {
     int numOfHigherChars = 0;
-    auto charIter = ConsideredCharacterLevelsByPlayerGUID.find(player->GetGUID().GetCounter());
-    if (charIter != ConsideredCharacterLevelsByPlayerGUID.end())
+    auto charIter = InfluencingCharacterLevelsByPlayerGUID.find(player->GetGUID().GetCounter());
+    if (charIter != InfluencingCharacterLevelsByPlayerGUID.end())
     {
         for (const auto& level : charIter->second)
         {
-            if (level > player->GetLevel())
-                numOfHigherChars++;
+            if (level <= player->GetLevel())
+                continue;
+            if (MinInfluencingCharLevel > 0 && level < MinInfluencingCharLevel)
+                continue;
+            numOfHigherChars++;
         }
     }
 
@@ -56,14 +62,16 @@ int AltExpBoostMod::GetNumOfCharHigherThanLoggedInChar(Player* player)
 
 float AltExpBoostMod::GetExtraEXPOnKillBonus(Player* player)
 {
-    int numOfHigherChars = GetNumOfCharHigherThanLoggedInChar(player);
+    if (MaxAppliedCharLevel > 0 && player->GetLevel() > MaxAppliedCharLevel)
+        return 0;
+    int numOfHigherChars = GetNumOfInfluencingCharHigherThanLoggedInChar(player);
     float bonusAmount = (float)numOfHigherChars * ExtraEXPPercentKill;
     return bonusAmount;
 }
 
-void AltExpBoostMod::LoadConsideredCharacterLevelsForPlayer(Player* player)
+void AltExpBoostMod::LoadInfluencingCharacterLevelsForPlayer(Player* player)
 {
-    ConsideredCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
+    InfluencingCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
 
     // Some classes are disabled
     if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
@@ -71,20 +79,20 @@ void AltExpBoostMod::LoadConsideredCharacterLevelsForPlayer(Player* player)
 
     // Repopulate the list
     string queryString;
-    if (DisabledConsideredClassIDs.empty() == true)
+    if (DisabledInfluencingClassIDs.empty() == true)
         queryString = fmt::format("SELECT `class`, `level` FROM characters WHERE account = {} AND guid <> {}", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter());
     else
     {
         std::ostringstream classIDStream;
-        for (auto it = DisabledConsideredClassIDs.begin(); it != DisabledConsideredClassIDs.end(); ++it)
+        for (auto it = DisabledInfluencingClassIDs.begin(); it != DisabledInfluencingClassIDs.end(); ++it)
         {
-            if (it != DisabledConsideredClassIDs.begin())
+            if (it != DisabledInfluencingClassIDs.begin())
                 classIDStream << ",";
             classIDStream << *it;
         }
         queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {} AND class NOT IN ({})", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter(), classIDStream.str());
     }
-    ConsideredCharacterLevelsByPlayerGUID.insert(std::make_pair(player->GetGUID().GetCounter(), std::vector<uint32>()));
+    InfluencingCharacterLevelsByPlayerGUID.insert(std::make_pair(player->GetGUID().GetCounter(), std::vector<uint32>()));
     QueryResult queryResult = CharacterDatabase.Query(queryString);
     if (queryResult && queryResult->GetRowCount() > 0)
     {
@@ -92,7 +100,7 @@ void AltExpBoostMod::LoadConsideredCharacterLevelsForPlayer(Player* player)
         {
             Field* fields = queryResult->Fetch();
             uint32 level = fields[0].Get<uint32>();
-            ConsideredCharacterLevelsByPlayerGUID[player->GetGUID().GetCounter()].push_back(level);
+            InfluencingCharacterLevelsByPlayerGUID[player->GetGUID().GetCounter()].push_back(level);
         } while (queryResult->NextRow());
     }
 }
@@ -103,9 +111,27 @@ void AltExpBoostMod::AnnounceCurrentBonus(Player* player)
     if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
         return;
 
-    int numOfAffectingChar = AltExpBoost->GetNumOfCharHigherThanLoggedInChar(player);
+    // If the player is above the maximum, tell them
+    if (MaxAppliedCharLevel > 0 && player->GetLevel() > MaxAppliedCharLevel)
+    {
+        if (DisplayMessageBonusOnLoginAndLevelChange == true)
+        {
+            string text = fmt::format("You will not receive any bonus experience from other characters due to being above level {}", MaxAppliedCharLevel);
+            ChatHandler(player->GetSession()).SendSysMessage(text);
+        }
+        return;
+    }
+
+    if (DisplayMessageBonusOnLoginAndLevelChange == false)
+        return;
+
+    // If there's a minimum, show a message about it
+    int numOfAffectingChar = AltExpBoost->GetNumOfInfluencingCharHigherThanLoggedInChar(player);
+    string minLevelFragment = "";
+    if (MinInfluencingCharLevel > 0)
+        minLevelFragment = fmt::format(" (and > level {})", MinInfluencingCharLevel); 
     uint32 extraEXPKillBonus = (uint32)(AltExpBoost->GetExtraEXPOnKillBonus(player) * 100);
-    string text = fmt::format("You have |cff4CFF00{}|r characters higher than your current level, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, extraEXPKillBonus);
+    string text = fmt::format("You have |cff4CFF00{}|r characters higher than your current level{}, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, minLevelFragment, extraEXPKillBonus);
     ChatHandler(player->GetSession()).SendSysMessage(text);
 }
 

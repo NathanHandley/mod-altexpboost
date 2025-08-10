@@ -31,24 +31,23 @@ public:
     {
         if (AltExpBoost->IsEnabled == false)
             return;
-        if (AltExpBoost->AnnourceOnLogin == true)
+        if (AltExpBoost->DisplayMessageAnnounceAddonInUseOnLogin == true)
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the Alt EXP Boost module.");
-        AltExpBoost->LoadConsideredCharacterLevelsForPlayer(player);
-        if (AltExpBoost->ShowCurBonusOnLoginAndLevel == true)
-            AltExpBoost->AnnounceCurrentBonus(player);
+        AltExpBoost->LoadInfluencingCharacterLevelsForPlayer(player);
+        AltExpBoost->AnnounceCurrentBonus(player);
     }
 
     void OnPlayerLogout(Player* player) override
     {
-        AltExpBoost->ConsideredCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
+        AltExpBoost->InfluencingCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
     }
 
     void OnPlayerLevelChanged(Player* player, uint8 /*oldLevel*/) override
     {
         if (AltExpBoost->IsEnabled == false)
             return;
-        if (AltExpBoost->ShowCurBonusOnLoginAndLevel == true)
-            AltExpBoost->AnnounceCurrentBonus(player);
+        int numOfAffectingChar = AltExpBoost->GetNumOfInfluencingCharHigherThanLoggedInChar(player);
+        AltExpBoost->AnnounceCurrentBonus(player);
     }
 
     void OnPlayerGiveXP(Player* player, uint32& amount, Unit* /*victim*/, uint8 /*xpSource*/) override

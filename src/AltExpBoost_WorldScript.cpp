@@ -32,10 +32,13 @@ public:
     void OnAfterConfigLoad(bool /*reload*/) override
     {
         AltExpBoost->IsEnabled = sConfigMgr->GetOption<bool>("AltExpBoost.Enable", true);
-        AltExpBoost->AnnourceOnLogin = sConfigMgr->GetOption<bool>("AltExpBoost.AnnourceOnLogin", false);
-        AltExpBoost->ShowCurBonusOnLoginAndLevel = sConfigMgr->GetOption<bool>("AltExpBoost.ShowCurBonusOnLoginAndLevel", true);
-        AltExpBoost->DisabledConsideredClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledConsideredClassIDs", "6"));
+        AltExpBoost->DisplayMessageAnnounceAddonInUseOnLogin = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin", false);
+        AltExpBoost->DisplayMessageBonusOnLoginAndLevelChange = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.BonusOnLoginAndLevelChange", true);
+        AltExpBoost->DisplayMessageIfAboveMaxAppliedCharLevel = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.AboveMaxAppliedCharLevel", true);
+        AltExpBoost->DisabledInfluencingClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledInfluencingClassIDs", "6"));
         AltExpBoost->DisabledAppliedClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledAppliedClassIDs", ""));
+        AltExpBoost->MinInfluencingCharLevel = sConfigMgr->GetOption<uint32>("AltExpBoost.LevelLimit.MinInfluencingCharLevel", 10);
+        AltExpBoost->MaxAppliedCharLevel = sConfigMgr->GetOption<uint32>("AltExpBoost.LevelLimit.MaxAppliedCharLevel", 0);
         AltExpBoost->ExtraEXPPercentKill = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Kill", 50));
         //AltExpBoost->ExtraEXPPercentQuest = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Quest", 50)); NYI
         //AltExpBoost->ExtraEXPPercentDiscover = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Discover", 50)); NYI

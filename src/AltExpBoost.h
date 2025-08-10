@@ -38,19 +38,22 @@ public:
     ~AltExpBoostMod();
 
     bool IsEnabled;
-    bool AnnourceOnLogin;
-    bool ShowCurBonusOnLoginAndLevel;
-    std::set<uint32> DisabledConsideredClassIDs;
+    bool DisplayMessageAnnounceAddonInUseOnLogin;
+    bool DisplayMessageBonusOnLoginAndLevelChange;
+    bool DisplayMessageIfAboveMaxAppliedCharLevel;
+    std::set<uint32> DisabledInfluencingClassIDs;
     std::set<uint32> DisabledAppliedClassIDs;
     float ExtraEXPPercentKill;
+    uint32 MinInfluencingCharLevel;
+    uint32 MaxAppliedCharLevel;
     //float ExtraEXPPercentQuest; NYI
     //float ExtraEXPPercentDiscover; NYI
-    std::map<ObjectGuid::LowType, std::vector<uint32>> ConsideredCharacterLevelsByPlayerGUID;
+    std::map<ObjectGuid::LowType, std::vector<uint32>> InfluencingCharacterLevelsByPlayerGUID;
 
-    int GetNumOfCharHigherThanLoggedInChar(Player* player);
+    int GetNumOfInfluencingCharHigherThanLoggedInChar(Player* player);
     float GetExtraEXPOnKillBonus(Player* player);
 
-    void LoadConsideredCharacterLevelsForPlayer(Player* player);
+    void LoadInfluencingCharacterLevelsForPlayer(Player* player);
     void AnnounceCurrentBonus(Player* player);
 };
 

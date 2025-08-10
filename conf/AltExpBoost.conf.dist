@@ -7,43 +7,64 @@
 #		Enable/Disable this whole module
 #	Default 1 (enabled)
 #
-# 	AltExpBoost.AnnourceOnLogin
+# 	AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin
 #		If true, will write a message on login that the module is active.
 #	Default 1 (enabled)
 #
-# 	AltExpBoost.ShowCurBonusOnLoginAndLevel
+# 	AltExpBoost.DisplayMessage.BonusOnLoginAndLevelChange
 #		If true, will output to the console the current active bonus on login and whenever the
 #       player levels up
 #	Default 1 (enabled)
+#
+# 	AltExpBoost.DisplayMessageIfAboveMaxAppliedCharLevel
+#		If true, will output a message if the character is above "MaxAppliedCharLevel"
+#	Default 1 (enabled)
 #      
-#   AltExpBoost.DisabledConsideredClassIDs
+#   AltExpBoost.DisabledInfluencingClassIDs
 #       These are class IDs that will not be included in calculating exp for the currently played
 #       class, used for ignoring heroic (DK) or custom classes which start above level 1.  Value 
 #       comes from ChrClasses.dbc. Use a comma (no spaces) to have multiple classes.
 #       For example, a value of "1,6" would disable considering Warrior (1) and Death Knight (6)
-#       when calculating the currently played character
+#       when calculating the currently played character's bonus experience.  Leave blank if no
+#       restrictions are desired.
 #   Default 6 (disables Death Knight, since they typically start at 55)
 #
 #   AltExpBoost.DisabledAppliedClassIDs
 #       These are class IDs that will not gain any experience boost even if other characters on the
 #       account are a higher level.  Use a comma (no spaces) to have multiple classes. Value 
-#       comes from ChrClasses.dbc.
+#       comes from ChrClasses.dbc.  Leave blank if no restrictions are desired.
 #       For example, setting this to "3" would mean that hunters would not gain any extra exp even
 #       if another class on that account was higher than the hunter's level
 #   Default blank (no classes)
+#
+#	AltExpBoost.LevelLimit.MinInfluencingCharLevel
+#		Any character will need to be this level or higher in order for other characters to
+#		consider them when calculating bonus experience.  Set to 0 or leave blank for no minimum
+#       limit.  For example, having this set to 10 with 3 characters with levels 8, 12, and 14
+#       will only count 2 characters (12 and 14) when calculating bonus experience
+#	Default 10 (characters used in bonus calculation must be 10 levels or higher)
+#
+#	AltExpBoost.LevelLimit.MaxAppliedCharLevel
+#		Only characters at or under this level can receive any bonus experience. Set to blank
+#       or 0 for no maximum
+#		For example, setting this to 49 will me any character 1-49 will get bonus experience
+#	Default blank (no limit)
 #
 #	AltExpBoost.ExtraExpPercentPerChar.Kill
 #		For each character a player account has that is above the level of their currently logged on
 #       character, this exp multiplier mod will be added.  For example, if this value is 50 and the 
 #       player has 3 other characters above the current character's level, then 150% (50% x 3) bonus 
 #       experience will be rewarded.  Negative will be treated as 0.
-#   Default 50 (adds an additional 50% experience)
+#   Default 50 (adds an additional 50% per influencing character)
 #
 ###################################################################################################
 
 AltExpBoost.Enable = 1
-AltExpBoost.AnnourceOnLogin = 0
-AltExpBoost.ShowCurBonusOnLoginAndLevel = 1
-AltExpBoost.DisabledConsideredClassIDs = 6
+AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin = 0
+AltExpBoost.DisplayMessage.BonusOnLoginAndLevelChange = 1
+AltExpBoost.DisplayMessage.AboveMaxAppliedCharLevel = 1
+AltExpBoost.DisabledInfluencingClassIDs = 6
 AltExpBoost.DisabledAppliedClassIDs = 
+AltExpBoost.LevelLimit.MinInfluencingCharLevel = 10
+AltExpBoost.LevelLimit.MaxAppliedCharLevel = 
 AltExpBoost.ExtraExpPercentPerChar.Kill = 50
