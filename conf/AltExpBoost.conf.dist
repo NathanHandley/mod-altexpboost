@@ -33,22 +33,17 @@
 #   Default blank (no classes)
 #
 #	AltExpBoost.ExtraExpPercentPerChar.Kill
-#	AltExpBoost.ExtraExpPercentPerChar.Quest
-#	AltExpBoost.ExtraExpPercentPerChar.Discover
 #		For each character a player account has that is above the level of their currently logged on
 #       character, this exp multiplier mod will be added.  For example, if this value is 50 and the 
 #       player has 3 other characters above the current character's level, then 150% (50% x 3) bonus 
-#       experience will be rewarded.  Whole values only.  Negative will be treated as 0
+#       experience will be rewarded.  Negative will be treated as 0.
 #   Default 100 (adds an additional 100% experience, effectively doubling experience)
 #
 ###################################################################################################
 
 AltExpBoost.Enable = 1
-AltExpBoost.AnnourceOnLogin = 1
+AltExpBoost.AnnourceOnLogin = 0
 AltExpBoost.ShowCurBonusOnLoginAndLevel = 1
 AltExpBoost.DisabledConsideredClassIDs = 6
 AltExpBoost.DisabledAppliedClassIDs = 
-
 AltExpBoost.ExtraExpPercentPerChar.Kill = 100
-AltExpBoost.ExtraExpPercentPerChar.Quest = 100
-AltExpBoost.ExtraExpPercentPerChar.Discover = 100

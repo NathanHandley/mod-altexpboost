@@ -14,11 +14,22 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "Configuration/Config.h"
+#include "Chat.h"
+#include "ScriptMgr.h"
+#include "Player.h"
+
 #include "AltExpBoost.h"
 
 using namespace std;
 
-AltExpBoostMod::AltExpBoostMod()
+AltExpBoostMod::AltExpBoostMod() :
+    IsEnabled(true),
+    AnnourceOnLogin(false),
+    ShowCurBonusOnLoginAndLevel(true),
+    ExtraEXPPercentKill(1)
+    //ExtraEXPPercentQuest(1), NYI
+    //ExtraEXPPercentDiscover(1) NYI
 {
 }
 
@@ -26,3 +37,25 @@ AltExpBoostMod::~AltExpBoostMod()
 {
 
 }
+
+int AltExpBoostMod::GetNumOfCharHigherThanLoggedInChar()
+{
+    return 0;
+}
+
+float AltExpBoostMod::GetExtraEXPOnKillBonus()
+{
+    return 0;
+}
+
+void AltExpBoostMod::AnnounceCurrentBonus(Player* player)
+{
+    int numOfAffectingChar = AltExpBoost->GetNumOfCharHigherThanLoggedInChar();
+    float extraEXPKillBonus = AltExpBoost->GetExtraEXPOnKillBonus();
+    string text = fmt::format("You have |cff4CFF00{}|r characters higher than your current level, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, extraEXPKillBonus);
+    ChatHandler(player->GetSession()).SendSysMessage(text);
+}
+
+
+
+

@@ -17,6 +17,11 @@
 #ifndef ALTEXPBOOST_H
 #define ALTEXPBOOST_H
 
+#include "Common.h"
+#include "Player.h"
+
+#include <set>
+
 class AltExpBoostMod
 {
 private:
@@ -29,6 +34,20 @@ public:
         return &instance;
     }
     ~AltExpBoostMod();
+
+    bool IsEnabled;
+    bool AnnourceOnLogin;
+    bool ShowCurBonusOnLoginAndLevel;
+    std::set<uint32> DisabledConsideredClassIDs;
+    std::set<uint32> DisabledAppliedClassIDs;
+    float ExtraEXPPercentKill;
+    //float ExtraEXPPercentQuest; NYI
+    //float ExtraEXPPercentDiscover; NYI
+
+    int GetNumOfCharHigherThanLoggedInChar();
+    float GetExtraEXPOnKillBonus();
+
+    void AnnounceCurrentBonus(Player* player);
 };
 
 #define AltExpBoost AltExpBoostMod::instance()

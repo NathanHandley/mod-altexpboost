@@ -18,7 +18,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-#include "EverQuest.h"
+#include "AltExpBoost.h"
 
 using namespace std;
 
@@ -29,13 +29,27 @@ public:
 
     void OnPlayerLogin(Player* player) override
     {
-        EverQuest->AllLoadedPlayers.push_back(player);
-        EverQuest->SetPlayerDayOrNightAura(player);
+        if (AltExpBoost->IsEnabled == false)
+            return;
+        if (AltExpBoost->AnnourceOnLogin == true)
+            ChatHandler(player->GetSession()).SendSysMessage("This server is running the Alt EXP Boost module.");
+        if (AltExpBoost->ShowCurBonusOnLoginAndLevel == true)
+            AltExpBoost->AnnounceCurrentBonus(player);
     }
 
-    void OnPlayerLogout(Player* player) override
+    void OnPlayerLevelChanged(Player* player, uint8 /*oldLevel*/) override
     {
-        // TODO
+        if (AltExpBoost->IsEnabled == false)
+            return;
+        if (AltExpBoost->ShowCurBonusOnLoginAndLevel == true)
+            AltExpBoost->AnnounceCurrentBonus(player);
+    }
+
+    void OnPlayerGiveXP(Player* player, uint32& amount, Unit* /*victim*/, uint8 /*xpSource*/) override
+    {
+        if (AltExpBoost->IsEnabled == false)
+            return;
+        amount = amount + (uint32)(amount * AltExpBoost->GetExtraEXPOnKillBonus());
     }
 };
 

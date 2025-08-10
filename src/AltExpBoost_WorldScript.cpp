@@ -17,6 +17,11 @@
 #include "Configuration/Config.h"
 #include "ScriptMgr.h"
 
+#include <set>
+#include <string>
+
+#include "AltExpBoost.h"
+
 using namespace std;
 
 class AltExpBoost_WorldScript: public WorldScript
@@ -26,7 +31,43 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        // TODO
+        AltExpBoost->IsEnabled = sConfigMgr->GetOption<bool>("AltExpBoost.Enable", true);
+        AltExpBoost->AnnourceOnLogin = sConfigMgr->GetOption<bool>("AltExpBoost.AnnourceOnLogin", false);
+        AltExpBoost->ShowCurBonusOnLoginAndLevel = sConfigMgr->GetOption<bool>("AltExpBoost.ShowCurBonusOnLoginAndLevel", true);
+        AltExpBoost->DisabledConsideredClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledConsideredClassIDs", "6"));
+        AltExpBoost->DisabledAppliedClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledAppliedClassIDs", ""));
+        AltExpBoost->ExtraEXPPercentKill = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Kill", 100));
+        //AltExpBoost->ExtraEXPPercentQuest = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Quest", 100)); NYI
+        //AltExpBoost->ExtraEXPPercentDiscover = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Discover", 100)); NYI
+    }
+
+private:
+    std::set<uint32> GetClassIDsFromString(std::string classIDString)
+    {
+        std::string delimitedValue;
+        std::stringstream classIDStream;
+        std::set<uint32> classIDs;
+
+        // Grab from the string
+        classIDStream.str(classIDString);
+        while (std::getline(classIDStream, delimitedValue, ',')) // Process each class ID in the string, delimited by the comma ","
+        {
+            std::string valueOne;
+            std::stringstream classIDStream(delimitedValue);
+            classIDStream >> valueOne;
+            auto characterGUID = atoi(valueOne.c_str());
+            if (classIDs.find(characterGUID) == classIDs.end())
+                classIDs.insert(characterGUID);
+        }
+        return classIDs;
+    }
+
+    float GetConstrainedAndFormattedEXPPercent(float inputConfigPercent)
+    {
+        if (inputConfigPercent <= 0)
+            return 0;
+        else
+            return inputConfigPercent / 100;
     }
 };
 
