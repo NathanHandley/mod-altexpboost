@@ -20,6 +20,8 @@
 #include "Common.h"
 #include "Player.h"
 
+#include <vector>
+#include <map>
 #include <set>
 
 class AltExpBoostMod
@@ -43,10 +45,12 @@ public:
     float ExtraEXPPercentKill;
     //float ExtraEXPPercentQuest; NYI
     //float ExtraEXPPercentDiscover; NYI
+    std::map<ObjectGuid::LowType, std::vector<uint32>> ConsideredCharacterLevelsByPlayerGUID;
 
-    int GetNumOfCharHigherThanLoggedInChar();
-    float GetExtraEXPOnKillBonus();
+    int GetNumOfCharHigherThanLoggedInChar(Player* player);
+    float GetExtraEXPOnKillBonus(Player* player);
 
+    void LoadConsideredCharacterLevelsForPlayer(Player* player);
     void AnnounceCurrentBonus(Player* player);
 };
 

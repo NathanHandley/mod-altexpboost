@@ -37,7 +37,7 @@
 #       character, this exp multiplier mod will be added.  For example, if this value is 50 and the 
 #       player has 3 other characters above the current character's level, then 150% (50% x 3) bonus 
 #       experience will be rewarded.  Negative will be treated as 0.
-#   Default 100 (adds an additional 100% experience, effectively doubling experience)
+#   Default 50 (adds an additional 50% experience)
 #
 ###################################################################################################
 
@@ -46,4 +46,4 @@ AltExpBoost.AnnourceOnLogin = 0
 AltExpBoost.ShowCurBonusOnLoginAndLevel = 1
 AltExpBoost.DisabledConsideredClassIDs = 6
 AltExpBoost.DisabledAppliedClassIDs = 
-AltExpBoost.ExtraExpPercentPerChar.Kill = 100
+AltExpBoost.ExtraExpPercentPerChar.Kill = 50

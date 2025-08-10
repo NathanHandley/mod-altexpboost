@@ -27,9 +27,9 @@ AltExpBoostMod::AltExpBoostMod() :
     IsEnabled(true),
     AnnourceOnLogin(false),
     ShowCurBonusOnLoginAndLevel(true),
-    ExtraEXPPercentKill(1)
-    //ExtraEXPPercentQuest(1), NYI
-    //ExtraEXPPercentDiscover(1) NYI
+    ExtraEXPPercentKill(0.5)
+    //ExtraEXPPercentQuest(0.5), NYI
+    //ExtraEXPPercentDiscover(0.5) NYI
 {
 }
 
@@ -38,20 +38,73 @@ AltExpBoostMod::~AltExpBoostMod()
 
 }
 
-int AltExpBoostMod::GetNumOfCharHigherThanLoggedInChar()
+int AltExpBoostMod::GetNumOfCharHigherThanLoggedInChar(Player* player)
 {
-    return 0;
+    int numOfHigherChars = 0;
+    auto charIter = ConsideredCharacterLevelsByPlayerGUID.find(player->GetGUID().GetCounter());
+    if (charIter != ConsideredCharacterLevelsByPlayerGUID.end())
+    {
+        for (const auto& level : charIter->second)
+        {
+            if (level > player->GetLevel())
+                numOfHigherChars++;
+        }
+    }
+
+    return numOfHigherChars;
 }
 
-float AltExpBoostMod::GetExtraEXPOnKillBonus()
+float AltExpBoostMod::GetExtraEXPOnKillBonus(Player* player)
 {
-    return 0;
+    int numOfHigherChars = GetNumOfCharHigherThanLoggedInChar(player);
+    float bonusAmount = (float)numOfHigherChars * ExtraEXPPercentKill;
+    return bonusAmount;
+}
+
+void AltExpBoostMod::LoadConsideredCharacterLevelsForPlayer(Player* player)
+{
+    ConsideredCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
+
+    // Some classes are disabled
+    if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
+        return;
+
+    // Repopulate the list
+    string queryString;
+    if (DisabledConsideredClassIDs.empty() == true)
+        queryString = fmt::format("SELECT `class`, `level` FROM characters WHERE account = {} AND guid <> {}", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter());
+    else
+    {
+        std::ostringstream classIDStream;
+        for (auto it = DisabledConsideredClassIDs.begin(); it != DisabledConsideredClassIDs.end(); ++it)
+        {
+            if (it != DisabledConsideredClassIDs.begin())
+                classIDStream << ",";
+            classIDStream << *it;
+        }
+        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {} AND class NOT IN ({})", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter(), classIDStream.str());
+    }
+    ConsideredCharacterLevelsByPlayerGUID.insert(std::make_pair(player->GetGUID().GetCounter(), std::vector<uint32>()));
+    QueryResult queryResult = CharacterDatabase.Query(queryString);
+    if (queryResult && queryResult->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = queryResult->Fetch();
+            uint32 level = fields[0].Get<uint32>();
+            ConsideredCharacterLevelsByPlayerGUID[player->GetGUID().GetCounter()].push_back(level);
+        } while (queryResult->NextRow());
+    }
 }
 
 void AltExpBoostMod::AnnounceCurrentBonus(Player* player)
 {
-    int numOfAffectingChar = AltExpBoost->GetNumOfCharHigherThanLoggedInChar();
-    float extraEXPKillBonus = AltExpBoost->GetExtraEXPOnKillBonus();
+    // If configured, some classes have no bonus
+    if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
+        return;
+
+    int numOfAffectingChar = AltExpBoost->GetNumOfCharHigherThanLoggedInChar(player);
+    uint32 extraEXPKillBonus = (uint32)(AltExpBoost->GetExtraEXPOnKillBonus(player) * 100);
     string text = fmt::format("You have |cff4CFF00{}|r characters higher than your current level, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, extraEXPKillBonus);
     ChatHandler(player->GetSession()).SendSysMessage(text);
 }

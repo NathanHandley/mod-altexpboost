@@ -36,9 +36,9 @@ public:
         AltExpBoost->ShowCurBonusOnLoginAndLevel = sConfigMgr->GetOption<bool>("AltExpBoost.ShowCurBonusOnLoginAndLevel", true);
         AltExpBoost->DisabledConsideredClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledConsideredClassIDs", "6"));
         AltExpBoost->DisabledAppliedClassIDs = GetClassIDsFromString(sConfigMgr->GetOption<std::string>("AltExpBoost.DisabledAppliedClassIDs", ""));
-        AltExpBoost->ExtraEXPPercentKill = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Kill", 100));
-        //AltExpBoost->ExtraEXPPercentQuest = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Quest", 100)); NYI
-        //AltExpBoost->ExtraEXPPercentDiscover = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Discover", 100)); NYI
+        AltExpBoost->ExtraEXPPercentKill = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Kill", 50));
+        //AltExpBoost->ExtraEXPPercentQuest = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Quest", 50)); NYI
+        //AltExpBoost->ExtraEXPPercentDiscover = GetConstrainedAndFormattedEXPPercent(sConfigMgr->GetOption<float>("AltExpBoost.ExtraExpPercentPerChar.Discover", 50)); NYI
     }
 
 private:

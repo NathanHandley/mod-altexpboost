@@ -33,8 +33,14 @@ public:
             return;
         if (AltExpBoost->AnnourceOnLogin == true)
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the Alt EXP Boost module.");
+        AltExpBoost->LoadConsideredCharacterLevelsForPlayer(player);
         if (AltExpBoost->ShowCurBonusOnLoginAndLevel == true)
             AltExpBoost->AnnounceCurrentBonus(player);
+    }
+
+    void OnPlayerLogout(Player* player) override
+    {
+        AltExpBoost->ConsideredCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
     }
 
     void OnPlayerLevelChanged(Player* player, uint8 /*oldLevel*/) override
@@ -49,7 +55,7 @@ public:
     {
         if (AltExpBoost->IsEnabled == false)
             return;
-        amount = amount + (uint32)(amount * AltExpBoost->GetExtraEXPOnKillBonus());
+        amount = amount + (uint32)(amount * AltExpBoost->GetExtraEXPOnKillBonus(player));
     }
 };
 
