@@ -16,9 +16,11 @@
 
 void AddAltExpBoostWorldScript();
 void AddAltExpBoostPlayerScript();
+void AddAltExpBoostCommandScript();
 
 void Addmod_altexpboostScripts()
 {
     AddAltExpBoostWorldScript();
     AddAltExpBoostPlayerScript();
+    AddAltExpBoostCommandScript();
 }

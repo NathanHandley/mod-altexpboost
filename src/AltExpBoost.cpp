@@ -62,6 +62,8 @@ int AltExpBoostMod::GetNumOfInfluencingCharHigherThanLoggedInChar(Player* player
 
 float AltExpBoostMod::GetExtraEXPOnKillBonus(Player* player)
 {
+    if (GetBonusEnabledForPlayer(player) == false)
+        return 0;
     if (MaxAppliedCharLevel > 0 && player->GetLevel() > MaxAppliedCharLevel)
         return 0;
     int numOfHigherChars = GetNumOfInfluencingCharHigherThanLoggedInChar(player);
@@ -111,31 +113,76 @@ void AltExpBoostMod::AnnounceCurrentBonus(Player* player)
     if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
         return;
 
-    // If the player is above the maximum, tell them
-    if (MaxAppliedCharLevel > 0 && player->GetLevel() > MaxAppliedCharLevel)
+    if (DisplayMessageBonusOnLoginAndLevelChange == false)
+        return;
+
+    // Current per-character toggle state, shown green when on and red when off
+    bool bonusEnabled = GetBonusEnabledForPlayer(player);
+    string statusFragment = bonusEnabled == true ? "|cff4CFF00ON|r" : "|cffff0000OFF|r";
+
+    // If the bonus has been turned off for this character, just report that
+    if (bonusEnabled == false)
     {
-        if (DisplayMessageBonusOnLoginAndLevelChange == true)
-        {
-            string text = fmt::format("You will not receive any bonus experience from other characters due to being above level {}", MaxAppliedCharLevel);
-            ChatHandler(player->GetSession()).SendSysMessage(text);
-        }
+        string text = fmt::format("Alt experience boost is currently {} for this character. Type '.altexpboost on' to enable it.", statusFragment);
+        ChatHandler(player->GetSession()).SendSysMessage(text);
         return;
     }
 
-    if (DisplayMessageBonusOnLoginAndLevelChange == false)
+    // If the player is above the maximum, tell them
+    if (MaxAppliedCharLevel > 0 && player->GetLevel() > MaxAppliedCharLevel)
+    {
+        string text = fmt::format("Alt experience boost is {}, but you will not receive any bonus experience from other characters due to being above level {}", statusFragment, MaxAppliedCharLevel);
+        ChatHandler(player->GetSession()).SendSysMessage(text);
         return;
+    }
 
     // If there's a minimum, show a message about it
     int numOfAffectingChar = AltExpBoost->GetNumOfInfluencingCharHigherThanLoggedInChar(player);
     string minLevelFragment = "";
     if (MinInfluencingCharLevel > 0)
-        minLevelFragment = fmt::format(" (and > level {})", MinInfluencingCharLevel); 
+        minLevelFragment = fmt::format(" (and > level {})", MinInfluencingCharLevel);
     uint32 extraEXPKillBonus = (uint32)(AltExpBoost->GetExtraEXPOnKillBonus(player) * 100);
     string charactersStringPluralS = "";
     if (numOfAffectingChar != 1)
         charactersStringPluralS = "s";
-    string text = fmt::format("You have |cff4CFF00{}|r character{} higher than your current level{}, granting you |cff4CFF00{}%|r additional experience on kill.", numOfAffectingChar, charactersStringPluralS, minLevelFragment, extraEXPKillBonus);
+    string text = fmt::format("Alt experience boost is {}. You have |cff4CFF00{}|r character{} higher than your current level{}, granting you |cff4CFF00{}%|r additional experience on kill. Disable with '.altexpboost off'", statusFragment, numOfAffectingChar, charactersStringPluralS, minLevelFragment, extraEXPKillBonus);
     ChatHandler(player->GetSession()).SendSysMessage(text);
+}
+
+bool AltExpBoostMod::GetBonusEnabledForPlayer(Player* player)
+{
+    auto enabledIter = BonusEnabledByPlayerGUID.find(player->GetGUID().GetCounter());
+    if (enabledIter != BonusEnabledByPlayerGUID.end())
+        return enabledIter->second;
+    // Default to enabled when no preference has been stored or loaded
+    return true;
+}
+
+void AltExpBoostMod::LoadBonusEnabledForPlayer(Player* player)
+{
+    uint32 playerGUID = player->GetGUID().GetCounter();
+    bool enabled = true;
+    QueryResult queryResult = CharacterDatabase.Query("SELECT `enabled` FROM mod_altexpboost_character_settings WHERE guid = {}", playerGUID);
+    if (queryResult && queryResult->GetRowCount() > 0)
+    {
+        Field* fields = queryResult->Fetch();
+        enabled = fields[0].Get<uint8>() == 1 ? true : false;
+    }
+    BonusEnabledByPlayerGUID[playerGUID] = enabled;
+}
+
+void AltExpBoostMod::SetBonusEnabledForPlayer(Player* player, bool enabled)
+{
+    uint32 playerGUID = player->GetGUID().GetCounter();
+    CharacterDatabase.DirectExecute("REPLACE INTO `mod_altexpboost_character_settings` (`guid`, `enabled`) VALUES ({}, {})", playerGUID, enabled == true ? 1 : 0);
+    BonusEnabledByPlayerGUID[playerGUID] = enabled;
+}
+
+void AltExpBoostMod::PerformPlayerDelete(ObjectGuid guid)
+{
+    uint32 playerGUID = guid.GetCounter();
+    CharacterDatabase.DirectExecute("DELETE FROM mod_altexpboost_character_settings WHERE guid = {}", playerGUID);
+    BonusEnabledByPlayerGUID.erase(playerGUID);
 }
 
 

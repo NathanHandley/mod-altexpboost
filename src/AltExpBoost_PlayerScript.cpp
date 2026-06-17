@@ -34,12 +34,19 @@ public:
         if (AltExpBoost->DisplayMessageAnnounceAddonInUseOnLogin == true)
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the Alt EXP Boost module.");
         AltExpBoost->LoadInfluencingCharacterLevelsForPlayer(player);
+        AltExpBoost->LoadBonusEnabledForPlayer(player);
         AltExpBoost->AnnounceCurrentBonus(player);
     }
 
     void OnPlayerLogout(Player* player) override
     {
         AltExpBoost->InfluencingCharacterLevelsByPlayerGUID.erase(player->GetGUID().GetCounter());
+        AltExpBoost->BonusEnabledByPlayerGUID.erase(player->GetGUID().GetCounter());
+    }
+
+    void OnPlayerDelete(ObjectGuid guid, uint32 /*accountId*/) override
+    {
+        AltExpBoost->PerformPlayerDelete(guid);
     }
 
     void OnPlayerLevelChanged(Player* player, uint8 /*oldLevel*/) override

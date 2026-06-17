@@ -49,12 +49,18 @@ public:
     //float ExtraEXPPercentQuest; NYI
     //float ExtraEXPPercentDiscover; NYI
     std::map<ObjectGuid::LowType, std::vector<uint32>> InfluencingCharacterLevelsByPlayerGUID;
+    std::map<ObjectGuid::LowType, bool> BonusEnabledByPlayerGUID;
 
     int GetNumOfInfluencingCharHigherThanLoggedInChar(Player* player);
     float GetExtraEXPOnKillBonus(Player* player);
 
     void LoadInfluencingCharacterLevelsForPlayer(Player* player);
     void AnnounceCurrentBonus(Player* player);
+
+    bool GetBonusEnabledForPlayer(Player* player);
+    void LoadBonusEnabledForPlayer(Player* player);
+    void SetBonusEnabledForPlayer(Player* player, bool enabled);
+    void PerformPlayerDelete(ObjectGuid guid);
 };
 
 #define AltExpBoost AltExpBoostMod::instance()
