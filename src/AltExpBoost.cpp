@@ -80,7 +80,7 @@ void AltExpBoostMod::LoadInfluencingCharacterLevelsForPlayer(Player* player)
     // Repopulate the list
     string queryString;
     if (DisabledInfluencingClassIDs.empty() == true)
-        queryString = fmt::format("SELECT `class`, `level` FROM characters WHERE account = {} AND guid <> {}", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter());
+        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {}", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter());
     else
     {
         std::ostringstream classIDStream;
