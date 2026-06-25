@@ -32,6 +32,7 @@ public:
     void OnAfterConfigLoad(bool /*reload*/) override
     {
         AltExpBoost->IsEnabled = sConfigMgr->GetOption<bool>("AltExpBoost.Enable", true);
+        AltExpBoost->EnableForEverQuestMod = sConfigMgr->GetOption<bool>("AltExpBoost.EnableForEverQuestMod", false);
         AltExpBoost->DisplayMessageAnnounceAddonInUseOnLogin = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin", false);
         AltExpBoost->DisplayMessageBonusOnLoginAndLevelChange = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.BonusOnLoginAndLevelChange", true);
         AltExpBoost->DisplayMessageIfAboveMaxAppliedCharLevel = sConfigMgr->GetOption<bool>("AltExpBoost.DisplayMessage.AboveMaxAppliedCharLevel", true);

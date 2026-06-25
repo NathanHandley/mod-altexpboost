@@ -25,6 +25,7 @@ using namespace std;
 
 AltExpBoostMod::AltExpBoostMod() :
     IsEnabled(true),
+    EnableForEverQuestMod(false),
     DisplayMessageAnnounceAddonInUseOnLogin(false),
     DisplayMessageBonusOnLoginAndLevelChange(true),
     DisplayMessageIfAboveMaxAppliedCharLevel(true),
@@ -79,11 +80,12 @@ void AltExpBoostMod::LoadInfluencingCharacterLevelsForPlayer(Player* player)
     if (DisabledAppliedClassIDs.find(player->getClass()) != DisabledAppliedClassIDs.end())
         return;
 
-    // Repopulate the list
-    string queryString;
-    if (DisabledInfluencingClassIDs.empty() == true)
-        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {}", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter());
-    else
+    uint32 accountID = player->GetSession()->GetAccountId();
+    uint32 playerGUID = player->GetGUID().GetCounter();
+
+    // Build a comma separated list of any classes that should not influence the bonus
+    std::string disabledClassList;
+    if (DisabledInfluencingClassIDs.empty() == false)
     {
         std::ostringstream classIDStream;
         for (auto it = DisabledInfluencingClassIDs.begin(); it != DisabledInfluencingClassIDs.end(); ++it)
@@ -92,8 +94,29 @@ void AltExpBoostMod::LoadInfluencingCharacterLevelsForPlayer(Player* player)
                 classIDStream << ",";
             classIDStream << *it;
         }
-        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {} AND class NOT IN ({})", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter(), classIDStream.str());
+        disabledClassList = classIDStream.str();
     }
+
+    // Repopulate the list
+    string queryString;
+    if (EnableForEverQuestMod == true)
+    {
+        // When running alongside the mod-everquest module, a single character can hold additional
+        // secondary classes in mod_everquest_characters, each with its own stored level.  Treat each
+        // influencing character's level as the highest level between its active class (characters.level)
+        // and any of its stored secondary classes (mod_everquest_characters.level).  For example, a
+        // character that is level 10 on its active class but has a secondary class at level 25 counts as 25.
+        std::string charClassFilter = disabledClassList.empty() == true ? "" : fmt::format(" AND c.class NOT IN ({})", disabledClassList);
+        std::string eqClassFilter = disabledClassList.empty() == true ? "" : fmt::format(" AND eq.class NOT IN ({})", disabledClassList);
+        queryString = fmt::format(
+            "SELECT GREATEST(c.`level`, IFNULL((SELECT MAX(eq.`level`) FROM mod_everquest_characters eq WHERE eq.guid = c.guid{}), 0)) "
+            "FROM characters c WHERE c.account = {} AND c.guid <> {}{}",
+            eqClassFilter, accountID, playerGUID, charClassFilter);
+    }
+    else if (disabledClassList.empty() == true)
+        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {}", accountID, playerGUID);
+    else
+        queryString = fmt::format("SELECT `level` FROM characters WHERE account = {} AND guid <> {} AND class NOT IN ({})", accountID, playerGUID, disabledClassList);
     InfluencingCharacterLevelsByPlayerGUID.insert(std::make_pair(player->GetGUID().GetCounter(), std::vector<uint32>()));
     QueryResult queryResult = CharacterDatabase.Query(queryString);
     if (queryResult && queryResult->GetRowCount() > 0)

@@ -38,6 +38,7 @@ public:
     ~AltExpBoostMod();
 
     bool IsEnabled;
+    bool EnableForEverQuestMod;
     bool DisplayMessageAnnounceAddonInUseOnLogin;
     bool DisplayMessageBonusOnLoginAndLevelChange;
     bool DisplayMessageIfAboveMaxAppliedCharLevel;

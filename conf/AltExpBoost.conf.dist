@@ -7,6 +7,14 @@
 #		Enable/Disable this whole module
 #	Default 1 (enabled)
 #
+# 	AltExpBoost.EnableForEverQuestMod
+#		This should ONLY ever be enabled when this module is in use alongside the mod-everquest
+#		module.  When enabled, an influencing character's level is taken as the highest level
+#		between its active class (the characters table) and any of its stored secondary classes
+#		in mod_everquest_characters.  For example, a character that is level 10 on its active
+#		class but has a secondary class stored at level 25 will be counted as level 25.
+#	Default 0 (disabled)
+#
 # 	AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin
 #		If true, will write a message on login that the module is active.
 #	Default 1 (enabled)
@@ -60,6 +68,7 @@
 ###################################################################################################
 
 AltExpBoost.Enable = 1
+AltExpBoost.EnableForEverQuestMod = 0
 AltExpBoost.DisplayMessage.AnnounceAddonInUseOnLogin = 0
 AltExpBoost.DisplayMessage.BonusOnLoginAndLevelChange = 1
 AltExpBoost.DisplayMessage.AboveMaxAppliedCharLevel = 1
